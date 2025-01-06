@@ -50,14 +50,15 @@
   
   .board-scroll:hover::-webkit-scrollbar {
     display: block;
+    width: 8px;
     height: 8px;
   }
-  
-  .board-scroll::-webkit-scrollbar-track {
-    @apply bg-transparent rounded-full;
+
+  .board-scroll:hover::-webkit-scrollbar-track {
+    @apply bg-gray-100 rounded-full;
   }
-  
-  .board-scroll::-webkit-scrollbar-thumb {
-    @apply bg-gray-300 hover:bg-gray-400 rounded-full;
+
+  .board-scroll:hover::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full hover:bg-gray-400 transition-colors;
   }
 }

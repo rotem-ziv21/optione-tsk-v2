@@ -369,7 +369,7 @@ export function Board({ board, onUpdate }: BoardProps) {
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex items-start gap-6 overflow-x-auto min-h-[calc(100vh-12rem)] board-scroll">
+        <div className="flex items-start gap-6 overflow-x-auto overflow-y-auto min-h-[calc(100vh-12rem)] max-h-[calc(100vh-12rem)] board-scroll">
           {columns.map((column) => (
             <ColumnComponent
               key={column.id}
