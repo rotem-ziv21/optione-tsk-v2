@@ -22,7 +22,20 @@ export function useTimeTracking(task: Task, onTimeEntryAdd: (entry: Omit<TimeEnt
         setIsTracking(true);
       }
     }
-  }, [task.id]);
+
+    // Load saved time entries
+    const savedEntries = localStorage.getItem(`timeEntries_${task.id}`);
+    if (savedEntries) {
+      const entries = JSON.parse(savedEntries);
+      entries.forEach(async (entry: TimeEntry) => {
+        try {
+          await onTimeEntryAdd(entry);
+        } catch (err) {
+          console.error('Failed to load time entry:', err);
+        }
+      });
+    }
+  }, [task.id, onTimeEntryAdd]);
 
   // Update elapsed time
   useEffect(() => {
@@ -78,7 +91,7 @@ export function useTimeTracking(task: Task, onTimeEntryAdd: (entry: Omit<TimeEnt
             return;
           }
 
-          await onTimeEntryAdd({
+          const timeEntry: Omit<TimeEntry, 'id'> = {
             taskId: task.id,
             userId: user.uid,
             description: description || 'Work on task',
@@ -87,7 +100,15 @@ export function useTimeTracking(task: Task, onTimeEntryAdd: (entry: Omit<TimeEnt
             duration,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
-          });
+          };
+
+          await onTimeEntryAdd(timeEntry);
+
+          // Save to local storage for persistence
+          const savedEntries = localStorage.getItem(`timeEntries_${task.id}`);
+          const entries = savedEntries ? JSON.parse(savedEntries) : [];
+          entries.push({ ...timeEntry, id: uuidv4() });
+          localStorage.setItem(`timeEntries_${task.id}`, JSON.stringify(entries));
 
           // Reset state
           setStartTime(null);
