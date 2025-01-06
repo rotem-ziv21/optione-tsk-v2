@@ -3,7 +3,6 @@ import { X, Calendar, Plus, CheckSquare, User, Trash2, Paperclip, MessageSquare 
 import { Task, ChecklistItem, Member, Attachment, TimeEntry, Comment } from '../types';
 import { FileUpload } from './FileUpload';
 import { AttachmentList } from './AttachmentList';
-import { TimeTracking } from './TimeTracking';
 import { TaskComments } from './TaskComments';
 import { useAuth } from '../hooks/useAuth';
 
@@ -34,10 +33,8 @@ export function EditTaskDialog({
   const [checklist, setChecklist] = useState(task.checklist || []);
   const [newChecklistItem, setNewChecklistItem] = useState('');
   const [attachments, setAttachments] = useState(task.attachments || []);
-  const [timeEntries, setTimeEntries] = useState(task.timeEntries || []);
   const [comments, setComments] = useState(task.comments || []);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
-  const [activeTab, setActiveTab] = useState<'details' | 'time' | 'comments'>('details');
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -64,29 +61,13 @@ export function EditTaskDialog({
     }
   };
 
-  const handleToggleChecklistItem = async (itemId: string) => {
-    try {
-      const updatedChecklist = checklist.map(item =>
-        item.id === itemId
-          ? { ...item, isCompleted: !item.isCompleted }
-          : item
-      );
-      
-      setChecklist(updatedChecklist);
-
-      // Save immediately when toggling checklist items
-      await onSave(task.id, {
-        checklist: updatedChecklist,
-        updatedAt: new Date().toISOString()
-      });
-
-    } catch (err) {
-      console.error('Failed to update checklist item:', err);
-      setError('Failed to update checklist item');
-      
-      // Revert the change if save failed
-      setChecklist(checklist);
-    }
+  const handleToggleChecklistItem = (itemId: string) => {
+    const updatedChecklist = checklist.map(item =>
+      item.id === itemId
+        ? { ...item, isCompleted: !item.isCompleted }
+        : item
+    );
+    setChecklist(updatedChecklist);
   };
 
   const handleRemoveChecklistItem = (itemId: string) => {
@@ -99,14 +80,6 @@ export function EditTaskDialog({
 
   const handleRemoveAttachment = (attachmentId: string) => {
     setAttachments(attachments.filter(att => att.id !== attachmentId));
-  };
-
-  const handleAddTimeEntry = async (entry: Omit<TimeEntry, 'id'>) => {
-    const newEntry: TimeEntry = {
-      id: Math.random().toString(36).substr(2, 9),
-      ...entry
-    };
-    setTimeEntries([...timeEntries, newEntry]);
   };
 
   const handleAddComment = async (content: string) => {
@@ -162,7 +135,6 @@ export function EditTaskDialog({
         assignee,
         checklist,
         attachments,
-        timeEntries,
         comments,
         updatedAt: new Date().toISOString()
       });
@@ -429,12 +401,6 @@ export function EditTaskDialog({
                 />
               </div>
             </div>
-
-            {/* Time Tracking */}
-            <TimeTracking
-              task={task}
-              onTimeEntryAdd={handleAddTimeEntry}
-            />
 
             {/* Comments */}
             <TaskComments

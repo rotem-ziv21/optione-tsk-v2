@@ -9,7 +9,6 @@ export function useTimeTracking(task: Task, onTimeEntryAdd: (entry: Omit<TimeEnt
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [description, setDescription] = useState('');
-  const [error, setError] = useState<string | null>(null);
 
   // Load active time entry from localStorage on mount
   useEffect(() => {
@@ -68,13 +67,10 @@ export function useTimeTracking(task: Task, onTimeEntryAdd: (entry: Omit<TimeEnt
 
   const handleStartStop = async () => {
     if (!user) {
-      setError('User must be logged in to track time');
       return;
     }
 
     try {
-      setError(null);
-
       if (!isTracking) {
         // Start tracking
         const now = new Date();
@@ -87,7 +83,6 @@ export function useTimeTracking(task: Task, onTimeEntryAdd: (entry: Omit<TimeEnt
           const duration = Math.floor((endTime.getTime() - startTime.getTime()) / 1000);
 
           if (duration < 60) {
-            setError('Time entry must be at least 1 minute long');
             return;
           }
 
@@ -119,7 +114,6 @@ export function useTimeTracking(task: Task, onTimeEntryAdd: (entry: Omit<TimeEnt
       }
     } catch (err) {
       console.error('Time tracking error:', err);
-      setError('Failed to save time entry');
     }
   };
 
@@ -134,7 +128,6 @@ export function useTimeTracking(task: Task, onTimeEntryAdd: (entry: Omit<TimeEnt
     isTracking,
     elapsedTime,
     description,
-    error,
     setDescription,
     handleStartStop,
     formatTime
